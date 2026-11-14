@@ -1,5 +1,7 @@
 // ماشین AR - نمونه اولیه
 // نشانگر: فایل targets.mind (ساخته‌شده از تصویر QR یا پوستر)
+import * as THREE from 'three';
+import { MindARThree } from './lib/mindar-image-three.prod.js';
 
 const PAINT_COLORS = [0xd32f2f, 0x1565c0, 0x2e7d32, 0xf9a825, 0xeeeeee, 0x212121];
 const EXPLODE_DISTANCE = 1.2;
@@ -134,7 +136,7 @@ async function startAR() {
   document.getElementById('controls').style.display = 'flex';
   setStatus('در حال آماده‌سازی دوربین...');
 
-  const mindarThree = new window.MINDAR.IMAGE.MindARThree({
+  const mindarThree = new MindARThree({
     container: document.getElementById('container'),
     imageTargetSrc: './targets.mind'
   });
