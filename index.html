@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>ماشین AR</title>
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #000; font-family: Tahoma, sans-serif; }
+  #container { position: fixed; inset: 0; }
+  #startScreen { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; background: #111; color: #fff; z-index: 10; padding: 24px; text-align: center; }
+  #startScreen p { margin: 0; font-size: 15px; line-height: 1.8; }
+  button { background: rgba(20, 20, 20, 0.78); color: #fff; border: 1px solid rgba(255, 255, 255, 0.4); border-radius: 12px; padding: 10px 14px; font-size: 15px; font-family: inherit; }
+  #startBtn { font-size: 18px; padding: 14px 28px; }
+  #status { position: fixed; top: 12px; left: 0; right: 0; text-align: center; color: #fff; text-shadow: 0 1px 3px #000; z-index: 5; font-size: 14px; pointer-events: none; }
+  #controls { position: fixed; bottom: 16px; left: 0; right: 0; display: none; flex-wrap: wrap; justify-content: center; gap: 8px; padding: 0 8px; z-index: 5; }
+  #details { position: fixed; top: 48px; left: 12px; right: 12px; max-width: 420px; margin: 0 auto; background: rgba(0, 0, 0, 0.72); color: #fff; padding: 12px; border-radius: 12px; display: none; z-index: 5; font-size: 14px; line-height: 1.9; }
+</style>
+</head>
+<body>
+
+<div id="container"></div>
+
+<div id="startScreen">
+  <img src="poster.jpg" alt="پوستر" style="max-height:38vh;max-width:80vw;border-radius:12px;">
+  <h2 style="margin:0">ماشین AR</h2>
+  <p>نیازی به نصب برنامه نیست. دکمه زیر را بزنید، دوربین باز می‌شود و ماشین را روی پوستر ببینید.</p>
+  <p>در مرحله بعد از شما اجازه استفاده از دوربین خواسته می‌شود.</p>
+  <button id="startBtn">مشاهده در AR</button>
+  <p id="browserWarning" style="display:none;color:#ffcc80;">اگر دکمه کار نکرد، این صفحه را در Chrome یا Safari باز کنید.</p>
+</div>
+
+<div id="status"></div>
+<div id="details"></div>
+
+<div id="controls">
+  <button id="colorBtn">تغییر رنگ</button>
+  <button id="explodeBtn">جدا کردن قطعات</button>
+  <button id="detailsBtn">جزئیات</button>
+  <button id="spinBtn">توقف چرخش</button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.150.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
