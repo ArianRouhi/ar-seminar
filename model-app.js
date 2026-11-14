@@ -9,7 +9,7 @@ const DETECT_THRESHOLD = 0.72; // از تست: بیشینه صحنه بدون ه
 const worker = new Worker('./detect-worker.js', { type: 'module' });
 const dcanvas = document.createElement('canvas');
 const dctx = dcanvas.getContext('2d', { willReadFrequently: true });
-let detBusy = false, workerReady = false, lostSince = 0;
+let detBusy = false, workerReady = false, lostSince = 0, detGen = 0;
 
 const video = document.getElementById('video');
 const fx = document.getElementById('fx');
@@ -57,6 +57,18 @@ function resize() {
 }
 addEventListener('resize', resize);
 
+// ---------- دکمه ریست: پاک کردن و شروع دوباره جستجو ----------
+document.getElementById('resetBtn').addEventListener('click', () => {
+  detGen++;                 // نتیجه جستجوهای قبلی نادیده گرفته شود
+  detBusy = false;
+  state = 'search';
+  tracker.box = null;
+  tracker.found = false;
+  lostSince = 0;
+  setHint('دوباره در حال جستجوی هدست...');
+  // افکت فعلی نرم محو می‌شود و بعد از پیدا شدن دوباره جای جدید ظاهر می‌شود
+});
+
 // ---------- حلقه اصلی ----------
 function track() {
   if (state === 'tracking' && !busy && video.readyState >= 2) {
@@ -88,12 +100,13 @@ worker.onmessage = (e) => {
   if (m.type !== 'result') return;
   detBusy = false;
   const r = m.result;
-  if (state !== 'search' || !r) return;
+  if (state !== 'search' || !r || m.id !== detGen) return;
   if (r.score >= DETECT_THRESHOLD) {
     const k = PROC_W / DET_W;
     const { gray, w, h } = grabGray();
     tracker.init(gray, w, h, { cx: r.cx * k, cy: r.cy * k, w: r.w * k * 0.85, h: r.h * k * 0.85 });
     screenBox = procToScreen({ cx: r.cx * k, cy: r.cy * k, w: r.w * k, h: r.h * k });
+    if (visible > 0.05) visible = 0.05; // از جای جدید با محو-به-ظاهر شروع شود
     state = 'tracking';
     tracker.found = true;
     setHint('هدست خودکار شناسایی شد');
@@ -108,7 +121,7 @@ function runDetection() {
   dctx.drawImage(video, 0, 0, w, h);
   const rgba = dctx.getImageData(0, 0, w, h).data;
   detBusy = true;
-  worker.postMessage({ type: 'detect', rgba, w, h }, [rgba.buffer]);
+  worker.postMessage({ type: 'detect', rgba, w, h, id: detGen }, [rgba.buffer]);
 }
 
 function drawEffect(t) {
@@ -116,7 +129,8 @@ function drawEffect(t) {
 
 
   const target = state === 'tracking' && tracker.found ? 1 : 0;
-  visible += (target - visible) * 0.15;
+  // ظاهر شدن سریع، محو شدن نرم وقتی هدف گم شد
+  visible += (target - visible) * (target > visible ? 0.12 : 0.06);
   if (!screenBox || visible < 0.02) return;
 
   const { cx, cy, w, h } = screenBox;
@@ -187,6 +201,7 @@ async function start() {
   video.srcObject = stream;
   await video.play();
   document.getElementById('startScreen').style.display = 'none';
+  document.getElementById('controls').style.display = 'flex';
   resize();
   state = 'search';
   setHint('دوربین را روی هدست بگیرید تا خودکار شناسایی شود');
