@@ -1,5 +1,5 @@
 // صفحه AR با شناسایی خودکار از روی مدل سه‌بعدی (Model Target) + ردیابی + افکت
-// اگر شناسایی خودکار جواب نداد، کاربر می‌تواند روی هدست ضربه بزند.
+// بدون ضربه: صفحه باز می‌شود، دوربین روشن می‌شود و هدست خودکار پیدا می‌شود.
 import { ObjectTracker, toGray } from './tracker.js';
 
 const NEON = '#44d62c';
@@ -20,7 +20,6 @@ const pctx = proc.getContext('2d', { willReadFrequently: true });
 
 const tracker = new ObjectTracker();
 let state = 'idle';        // idle | search | tracking
-let drag = null;           // کادر در حال کشیدن (مختصات صفحه)
 let screenBox = null;      // جعبه جسم روی صفحه (نرم‌شده)
 let visible = 0;           // شفافیت افکت (برای ظاهر/محو شدن نرم)
 let busy = false;
@@ -57,35 +56,6 @@ function resize() {
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
 addEventListener('resize', resize);
-
-// ---------- انتخاب جسم با ضربه یا کشیدن کادر ----------
-fx.addEventListener('pointerdown', (e) => {
-  if (state === 'idle') return;
-  drag = { x0: e.clientX, y0: e.clientY, x1: e.clientX, y1: e.clientY };
-});
-fx.addEventListener('pointermove', (e) => { if (drag) { drag.x1 = e.clientX; drag.y1 = e.clientY; } });
-fx.addEventListener('pointerup', () => {
-  if (!drag) return;
-  let { x0, y0, x1, y1 } = drag;
-  drag = null;
-  let w = Math.abs(x1 - x0), h = Math.abs(y1 - y0);
-  let cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
-  if (w < 40 || h < 40) { // ضربه ساده: کادر پیش‌فرض
-    w = h = Math.min(innerWidth, innerHeight) * 0.45;
-  }
-  const p = screenToProc(cx, cy);
-  const k = screenToProc(cx + w / 2, cy + h / 2);
-  const { gray, w: gw, h: gh } = grabGray();
-  tracker.init(gray, gw, gh, { cx: p.x, cy: p.y, w: (k.x - p.x) * 2, h: (k.y - p.y) * 2 });
-  screenBox = { cx, cy, w, h };
-  state = 'tracking';
-  setHint('در حال دنبال کردن هدست');
-});
-
-document.getElementById('resetBtn').addEventListener('click', () => {
-  state = 'search'; screenBox = null; visible = 0;
-  setHint('دوربین را روی هدست بگیرید تا خودکار شناسایی شود');
-});
 
 // ---------- حلقه اصلی ----------
 function track() {
@@ -144,11 +114,6 @@ function runDetection() {
 function drawEffect(t) {
   ctx.clearRect(0, 0, innerWidth, innerHeight);
 
-  if (drag) { // کادر در حال کشیدن
-    ctx.strokeStyle = NEON; ctx.lineWidth = 2; ctx.setLineDash([8, 6]);
-    ctx.strokeRect(Math.min(drag.x0, drag.x1), Math.min(drag.y0, drag.y1), Math.abs(drag.x1 - drag.x0), Math.abs(drag.y1 - drag.y0));
-    ctx.setLineDash([]);
-  }
 
   const target = state === 'tracking' && tracker.found ? 1 : 0;
   visible += (target - visible) * 0.15;
@@ -222,17 +187,25 @@ async function start() {
   video.srcObject = stream;
   await video.play();
   document.getElementById('startScreen').style.display = 'none';
-  document.getElementById('controls').style.display = 'flex';
   resize();
   state = 'search';
   setHint('دوربین را روی هدست بگیرید تا خودکار شناسایی شود');
   requestAnimationFrame(loop);
 }
 
+// دوربین خودکار با باز شدن صفحه روشن می‌شود. دکمه فقط اگر مرورگر اجازه نداد ظاهر می‌شود.
+function showStartButton(msg) {
+  const sc = document.getElementById('startScreen');
+  sc.style.display = 'flex';
+  document.getElementById('startBtn').style.display = 'inline-block';
+  if (msg) document.getElementById('startMsg').textContent = msg;
+}
+if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+  showStartButton();
+  document.getElementById('browserWarning').style.display = 'block';
+} else {
+  start().catch(() => showStartButton('برای روشن شدن دوربین، دکمه زیر را بزنید و اجازه دوربین را بدهید.'));
+}
 document.getElementById('startBtn').addEventListener('click', () => {
-  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    document.getElementById('browserWarning').style.display = 'block';
-    return;
-  }
-  start().catch((err) => { setHint('خطا در باز کردن دوربین: ' + err.message); document.getElementById('startScreen').style.display = 'none'; });
+  start().catch((err) => showStartButton('دوربین باز نشد: ' + err.message));
 });

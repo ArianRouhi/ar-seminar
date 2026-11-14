@@ -22,15 +22,13 @@
 
 <div id="startScreen">
   <h2 style="margin:0">AR روی هدست</h2>
-  <p>بدون نصب برنامه. دوربین را روی هدست بگیرید؛ خودکار شناسایی می‌شود و افکت روی خود هدست می‌ماند. اگر پیدا نشد، روی هدست ضربه بزنید.</p>
-  <button class="btn" id="startBtn">مشاهده در AR</button>
+  <p id="startMsg">در حال روشن کردن دوربین...</p>
+  <button class="btn" id="startBtn" style="display:none">روشن کردن دوربین</button>
   <p id="browserWarning" style="display:none;color:#ffcc80;">اگر دکمه کار نکرد، این صفحه را در Chrome یا Safari باز کنید.</p>
 </div>
 
 <div id="hint"></div>
-<div id="controls">
-  <button class="btn" id="resetBtn">انتخاب دوباره</button>
-</div>
+
 
 <script type="module" src="model-app.js"></script>
 </body>
