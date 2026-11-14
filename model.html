@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>AR با شناسایی خودکار هدست</title>
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #000; font-family: Tahoma, sans-serif; touch-action: none; }
+  video, #fx { position: fixed; inset: 0; width: 100%; height: 100%; }
+  video { object-fit: cover; }
+  #startScreen { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; background: #0b0f0b; color: #fff; z-index: 10; padding: 24px; text-align: center; }
+  #startScreen p { margin: 0; font-size: 15px; line-height: 1.9; }
+  .btn { background: #44d62c; color: #000; border: 0; border-radius: 12px; font-size: 17px; padding: 13px 26px; font-family: inherit; font-weight: bold; }
+  #hint { position: fixed; top: 14px; left: 12px; right: 12px; text-align: center; color: #fff; text-shadow: 0 1px 4px #000; z-index: 5; font-size: 15px; pointer-events: none; }
+  #controls { position: fixed; bottom: 18px; left: 0; right: 0; display: none; justify-content: center; gap: 10px; z-index: 5; }
+  #controls .btn { background: rgba(10, 10, 10, 0.75); color: #fff; border: 1px solid #44d62c; font-weight: normal; font-size: 15px; padding: 10px 18px; }
+</style>
+</head>
+<body>
+<video id="video" playsinline muted autoplay></video>
+<canvas id="fx"></canvas>
+
+<div id="startScreen">
+  <h2 style="margin:0">AR روی هدست</h2>
+  <p>بدون نصب برنامه. دوربین را روی هدست بگیرید؛ خودکار شناسایی می‌شود و افکت روی خود هدست می‌ماند. اگر پیدا نشد، روی هدست ضربه بزنید.</p>
+  <button class="btn" id="startBtn">مشاهده در AR</button>
+  <p id="browserWarning" style="display:none;color:#ffcc80;">اگر دکمه کار نکرد، این صفحه را در Chrome یا Safari باز کنید.</p>
+</div>
+
+<div id="hint"></div>
+<div id="controls">
+  <button class="btn" id="resetBtn">انتخاب دوباره</button>
+</div>
+
+<script type="module" src="model-app.js"></script>
+</body>
+</html>
