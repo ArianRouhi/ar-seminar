@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>AR روی هدست</title>
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #000; font-family: Tahoma, sans-serif; }
+  #container { position: fixed; inset: 0; }
+  #startScreen { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; background: #0b0f0b; color: #fff; z-index: 10; padding: 24px; text-align: center; }
+  #startScreen p { margin: 0; font-size: 15px; line-height: 1.8; }
+  #startBtn { background: #44d62c; color: #000; border: 0; border-radius: 12px; font-size: 18px; padding: 14px 28px; font-family: inherit; font-weight: bold; }
+  #status { position: fixed; top: 12px; left: 0; right: 0; text-align: center; color: #fff; text-shadow: 0 1px 3px #000; z-index: 5; font-size: 14px; pointer-events: none; }
+</style>
+</head>
+<body>
+<div id="container"></div>
+<div id="startScreen">
+  <h2 style="margin:0">AR روی هدست</h2>
+  <p>دوربین را روبه‌روی هدست یا از بغل آن بگیرید، با فاصله حدود ۳۰ تا ۵۰ سانتی‌متر و نور خوب.</p>
+  <button id="startBtn">مشاهده در AR</button>
+  <p id="browserWarning" style="display:none;color:#ffcc80;">اگر دکمه کار نکرد، این صفحه را در Chrome یا Safari باز کنید.</p>
+</div>
+<div id="status"></div>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.150.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.150.0/examples/jsm/"
+} }
+</script>
+<script type="module" src="headset.js"></script>
+</body>
+</html>
